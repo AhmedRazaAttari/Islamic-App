@@ -92,6 +92,10 @@ export default function ChatRoom({ route, navigation }) {
                             avatar: fire.auth().currentUser.photoURL,
                         }
                     })
+
+                    fire.database().ref("questions").child(UserId + "/" + newMessage[i]._id).set({
+                        question: newMessage[i].text,
+                    })
                 }
                 else {
                     fire.database().ref("Molana/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
@@ -112,18 +116,23 @@ export default function ChatRoom({ route, navigation }) {
                             avatar: fire.auth().currentUser.photoURL,
                         }
                     })
+
+                    if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
+                        fire.database().ref("questions").child(uid + "/" + MessageId + "/" + "answer").set({
+                            answer: newMessage[i].text,
+                        })
+                    }
+                    else{
+                        fire.database().ref("questions").child(uid  + "/" + "answer").set({
+                            answer: newMessage[i].text,
+                        })
+                    }
+        
                 }
             })
 
-            if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
-                fire.database().ref("questions").child(newMessage[i]._id + "/" + "answer").set({
-                    answer: newMessage[i].text,
-                })
-            }
             // fire.database().ref("questions").child(newMessage[i]._id)
-            fire.database().ref("questions").child(newMessage[i]._id).set({
-                question: newMessage[i].text,
-            })
+
         }
         setMessages(GiftedChat.append(messages, newMessage))
 

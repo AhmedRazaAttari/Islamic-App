@@ -11,12 +11,15 @@ export default function Forumhome({ navigation }) {
   React.useEffect(() => {
     fire.database().ref("questions").once("value").then(function (snapshot) {
       snapshot.forEach(function (childSnapshot) {
-        var data = `${childSnapshot.val().question}`
+        childSnapshot.forEach(function (anotherSnapshot) {
 
-        SearchItem.toLowerCase()
-        if (data.toLowerCase().indexOf(SearchItem) > -1) {
-          UpdateMatchData(childSnapshot.val())
-        }
+          var data = `${anotherSnapshot.val().question}`
+
+          SearchItem.toLowerCase()
+          if (data.toLowerCase().indexOf(SearchItem) > -1) {
+            UpdateMatchData(anotherSnapshot.val())
+          }
+        })
 
       })
     })
