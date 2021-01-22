@@ -8,7 +8,7 @@ import { Audio } from 'expo-av';
 const screen = Dimensions.get('window');
 import fire from '../config';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
-import { Keyboard } from "react-native";
+// import { Keyboard } from "react-native";
 import { TextInputComponent } from "react-native";
 var itm = [];
 // import SoundRecorder from 'react-native-sound-recorder';
@@ -18,39 +18,94 @@ export default function ChatRoom({ route, navigation }) {
     const [isloading, setLoading] = useState(true)
     const [recording, setRecording] = React.useState();
     const [MessageId, setMessageID] = useState()
-    const { name, uid } = route.params;
+    const [IsMolana, setIsMolana] = useState()
+    const { name, uid, fiqah } = route.params;
     const inputRef = React.createRef();
+    const [isRecording, UpdateRecording] = useState(true)
     const audioRecorderPlayer = new AudioRecorderPlayer();
 
 
-    async function StartRecording() {
-        let device = navigator.mediaDevices.getUserMedia({ audio: true })
-        let chunks = [];
-        let recorder;
-        // device.then(stream => {
-        //     recorder = new MediaRecorder(stream);
+    // async function StartRecording() {
+    //     let device = navigator.mediaDevices.getUserMedia({ audio: true })
+    //     let chunks = [];
+    //     let recorder;
+    //     // device.then(stream => {
+    //     //     recorder = new MediaRecorder(stream);
 
-        //     recorder
-        // })
-    }
+    //     //     recorder
+    //     // })
+    // }
+
+    // async function startRecording() {
+    //     try {
+    //         console.log('Requesting permissions..');
+    //         await Audio.requestPermissionsAsync();
+    //         await Audio.setAudioModeAsync({
+    //             allowsRecordingIOS: true,
+    //             playsInSilentModeIOS: true,
+    //         });
+    //         console.log('Starting recording..');
+    //         const recording = new Audio.Recording();
+    //         await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+    //         await recording.startAsync();
+    //         setRecording(recording);
+    //         console.log('Recording started');
+    //     } catch (err) {
+    //         console.error('Failed to start recording', err);
+    //     }
+    // }
+
+    // async function stopRecording() {
+    //     console.log('Stopping recording..');
+    //     setRecording(undefined);
+    //     const recording = new Audio.Recording();
+    //     await recording.stopAndUnloadAsync();
+    //     const uri = recording.getURI();
+    //     console.log('Recording stopped and stored at', uri);
+    // }
 
     function _keyboardDidShow() {
         console.log("Keyboard Shown")
     }
 
     useEffect(() => {
+        // isRecording && startRecording();
+
+        // setTimeout(function () {
+        //     UpdateRecording(false)
+        //     stopRecording()
+        // }, 5000);
+
         Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
         var UserId = fire.auth().currentUser.uid;
 
         var tempArr = [];
-        fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs").once("value").then(function (snapshot) {
-            snapshot.forEach(function (childSnapshot) {
-                tempArr.push(childSnapshot.val())
-            })
-        }).then(() => {
-            console.log("tempArr", tempArr)
-            tempArr.reverse();
-            setMessages(tempArr)
+        fire.database().ref("users/" + UserId).once("value").then(function (snapshot) {
+            if (snapshot.exists()) {
+                setIsMolana(false)
+                fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs").once("value").then(function (snapshot) {
+                    snapshot.forEach(function (childSnapshot) {
+                        tempArr.push(childSnapshot.val())
+                    })
+                }).then(() => {
+                    console.log("tempArr", tempArr)
+                    tempArr.reverse();
+                    setMessages(tempArr)
+                })
+            }
+            else {
+                alert("MOLANA HAI")
+                setIsMolana(true)
+                fire.database().ref("Molana" + "/" + fiqah + "/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs").once("value").then(function (snapshot) {
+                    snapshot.forEach(function (childSnapshot) {
+                        tempArr.push(childSnapshot.val())
+                    })
+                }).then(() => {
+                    console.log("tempArr", tempArr)
+                    tempArr.reverse();
+                    setMessages(tempArr)
+                })
+            }
         })
 
     }, [])
@@ -60,78 +115,63 @@ export default function ChatRoom({ route, navigation }) {
 
         var UserId = fire.auth().currentUser.uid;
 
-        fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid).update({
-            name: name,
-            uid: uid,
-        })
-
-        fire.database().ref("Molana/" + uid).child("ChatHeads" + "/" + UserId).update({
-            name: name,
-            uid: UserId,
-        })
-
         var newPostKey = fire.database().ref().child('posts').push().key;
         for (var i = 0; i < newMessage.length; i++) {
-            fire.database().ref("users/" + UserId).once("value").then(function (snapshot) {
-                if (snapshot.exists()) {
-                    fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
-                        _id: newMessage[i]._id,
-                        createdAt: newMessage[i].createdAt.toUTCString(),
-                        text: newMessage[i].text,
-                        user: {
-                            _id: 1,
-                        }
-                    })
-
-                    fire.database().ref("Molana/" + uid).child("ChatHeads" + "/" + UserId + "/" + "ChatMsgs" + "/" + newPostKey).set({
-                        _id: newMessage[i]._id,
-                        createdAt: newMessage[i].createdAt.toUTCString(),
-                        text: newMessage[i].text,
-                        user: {
-                            _id: 2,
-                            avatar: fire.auth().currentUser.photoURL,
-                        }
-                    })
-
-                    fire.database().ref("questions").child(UserId + "/" + newMessage[i]._id).set({
-                        question: newMessage[i].text,
-                    })
-                }
-                else {
-                    fire.database().ref("Molana/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
-                        _id: newMessage[i]._id,
-                        createdAt: newMessage[i].createdAt.toUTCString(),
-                        text: newMessage[i].text,
-                        user: {
-                            _id: 1,
-                        }
-                    })
-
-                    fire.database().ref("users/" + uid).child("ChatHeads" + "/" + UserId + "/" + "ChatMsgs" + "/" + newPostKey).set({
-                        _id: newMessage[i]._id,
-                        createdAt: newMessage[i].createdAt.toUTCString(),
-                        text: newMessage[i].text,
-                        user: {
-                            _id: 2,
-                            avatar: fire.auth().currentUser.photoURL,
-                        }
-                    })
-
-                    if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
-                        fire.database().ref("questions").child(uid + "/" + MessageId + "/" + "answer").set({
-                            answer: newMessage[i].text,
-                        })
+            console.log("newMessage*********", newMessage[i]._id)
+            if (!IsMolana) {
+                fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
+                    _id: newMessage[i]._id,
+                    createdAt: newMessage[i].createdAt.toUTCString(),
+                    text: newMessage[i].text,
+                    user: {
+                        _id: 1,
                     }
-                    else{
-                        fire.database().ref("questions").child(uid  + "/" + "answer").set({
-                            answer: newMessage[i].text,
-                        })
-                    }
-        
-                }
-            })
+                })
 
-            // fire.database().ref("questions").child(newMessage[i]._id)
+                fire.database().ref("Molana/" + fiqah + "/" + uid).child("ChatHeads" + "/" + UserId + "/" + "ChatMsgs" + "/" + newPostKey).set({
+                    _id: newMessage[i]._id,
+                    createdAt: newMessage[i].createdAt.toUTCString(),
+                    text: newMessage[i].text,
+                    user: {
+                        _id: 2,
+                        avatar: fire.auth().currentUser.photoURL,
+                    }
+                })
+                fire.database().ref("questions").child(UserId).set({
+                    question: newMessage[i].text,
+                })
+
+            }
+            else {
+                fire.database().ref("Molana/" + fiqah).child(UserId + "/" + "ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
+                    _id: newMessage[i]._id,
+                    createdAt: newMessage[i].createdAt.toUTCString(),
+                    text: newMessage[i].text,
+                    user: {
+                        _id: 1,
+                    }
+                })
+
+                fire.database().ref("users/" + uid).child("ChatHeads" + "/" + UserId + "/" + "ChatMsgs" + "/" + newPostKey).set({
+                    _id: newMessage[i]._id,
+                    createdAt: newMessage[i].createdAt.toUTCString(),
+                    text: newMessage[i].text,
+                    user: {
+                        _id: 2,
+                        // avatar: fire.auth().currentUser.photoURL,
+                    }
+                })
+
+                fire.database().ref("questions").child(UserId + "/" + "answer").set({
+                    answer: newMessage[i].text,
+                })
+                // if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
+                //     fire.database().ref("questions/" + uid).child(MessageId + "/" + "answer").set({
+                //         answer: newMessage[i].text,
+                //     })
+                // }
+
+            }
 
         }
         setMessages(GiftedChat.append(messages, newMessage))
@@ -185,7 +225,7 @@ export default function ChatRoom({ route, navigation }) {
             <View style={{ flexDirection: "row", height: 80, width: "100%", backgroundColor: "white", alignItems: "center" }}>
                 <TouchableOpacity
                     // style={{ position: "absolute", top: 50, left: 20 }}
-                    onPress={() => navigation.navigate("Chat")}
+                    onPress={() => navigation.goBack()}
                 >
                     <AntDesign name="left" size={30} color="black" style={{ marginTop: 20, marginLeft: 20 }} />
                 </TouchableOpacity>
@@ -195,11 +235,11 @@ export default function ChatRoom({ route, navigation }) {
             <KeyboardAvoidingView style={styles.container} >
                 <GiftedChat
                     isAnimated={true}
-                    onLongPress={() => onLongPress()}
                     // renderAccessory={CustomView}
                     // renderSend={this.SendBtn}
                     messages={messages}
                     onSend={newMessages => onSend(newMessages)}
+                    // onLongPress={(context, msg) => IsMolana ? onLongPress(context, msg) : null}
                     user={{
                         _id: 1,
                     }}

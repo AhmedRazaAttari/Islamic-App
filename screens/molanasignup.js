@@ -43,21 +43,22 @@ export default class Molanasignup extends Component {
     }
   }
 
-  Registermolana() {
-
+  async Registermolana() {
+    await this.uploadImage()
     const { name, email, fiqah, city, phoneNo, pass, repass } = this.state;
     if (fiqah !== "" && fiqah !== undefined && city !== "" && city !== undefined && email !== "" && email !== undefined && name !== "" && name !== undefined && phoneNo !== "" && phoneNo !== undefined && pass !== "" && pass !== undefined &&
       repass !== "" && repass !== undefined) {
       if (pass === repass) {
         fire.auth().createUserWithEmailAndPassword(email, pass)
           .then(res => {
-            fire.database().ref("Molana").child(res.user.uid).set({
+            fire.database().ref("Molana").child(fiqah + "/" + res.user.uid).set({
               id: res.user.uid,
               name: name,
               email: email,
               fiqah: fiqah,
               city: city,
               phoneNo: phoneNo,
+              profilePic : this.state.UploadedImg,
               time: Date.now()
             })
             this.props.navigation.push("MolanaHome")
@@ -74,11 +75,66 @@ export default class Molanasignup extends Component {
   }
 
 
-  onValueChange2(value) {
+  onValueChange2 = (value) => {
     this.setState({
       fiqah: value
     });
   }
+
+  pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({
+        profilePic: result.uri,
+        AvailableImg: true
+      })
+      // setImageUrl(result.uri);
+      // setAvailableImg(true)
+    }
+  };
+
+
+  _takePhoto = async () => {
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!pickerResult.cancelled) {
+      this.setState({
+        profilePic: pickerResult.uri,
+        AvailableImg: true
+      })
+    }
+  };
+
+  uploadImage = async () => {
+    // var _ = this;
+    const response = await fetch(this.state.profilePic);
+    const blob = await response.blob();
+    var ref = fire.storage().ref("images").child(new Date().toDateString());
+    ref.put(blob)
+      .then((result) => {
+        result.ref.getDownloadURL()
+          .then((url) => {
+            console.log(url);
+            // setUploadedUrl(url)
+            this.setState({
+              UploadedImg: url
+            })
+          })
+      })
+  }
+
+
+
 
   render() {
     let { image } = this.state;
@@ -115,13 +171,15 @@ export default class Molanasignup extends Component {
               placeholderStyle={{ color: "#bfc6ea" }}
               placeholderIconColor="#007aff"
               selectedValue={this.state.fiqah}
-              onValueChange={this.onValueChange2.bind(this)}
+              onValueChange={(value) => this.onValueChange2(value)}
             >
               <Picker.Item label="Select Fiqah" value="" />
               <Picker.Item label="Sunni" value="Sunni" />
               <Picker.Item label="Deo-bandi" value="Deobandi" />
               <Picker.Item label="Wahabi" value="Wahabi" />
               <Picker.Item label="Ahl-hadees" value="AhlHadees" />
+              <Picker.Item label="Shia" value="Shia" />
+
             </Picker>
           </Item>
           <Item floatingLabel>
@@ -160,13 +218,13 @@ export default class Molanasignup extends Component {
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 10 }}>
 
             <Button bordered light iconRight
-            // onPress={this._pickImage}
+              onPress={this.pickImage}
             >
               <Text>  Choose Image Certificate  </Text>
               <Icon name="attach" />
             </Button>
             <Button bordered light iconRight
-            // onPress={this._takePhoto}
+              onPress={this._takePhoto}
             >
               <Text> Take a Photo  </Text>
               <Icon name="camera" />
@@ -194,94 +252,94 @@ export default class Molanasignup extends Component {
       </ScrollView>
     );
   }
-
-
-  // _maybeRenderUploadingOverlay = () => {
-  //   if (this.state.uploading) {
-  //     return (
-  //       <View
-  //         style={[
-  //           StyleSheet.absoluteFill,
-  //           {
-  //             backgroundColor: 'rgba(0,0,0,0.4)',
-  //             alignItems: 'center',
-  //             justifyContent: 'center',
-  //           },
-  //         ]}>
-  //         <ActivityIndicator color="#fff" animating size="large" />
-  //       </View>
-  //     );
-  //   }
-  // };
-
-  // _maybeRenderImage = () => {
-  //   let { image } = this.state;
-  //   if (!image) {
-  //     return;
-  //   }
-
-  //   return (
-  //     <View
-  //       style={{
-  //         marginTop: 30,
-  //         width: 250,
-  //         borderRadius: 3,
-  //         elevation: 2,
-  //       }}>
-  //       <View
-  //         style={{
-  //           borderTopRightRadius: 3,
-  //           borderTopLeftRadius: 3,
-  //           shadowColor: 'rgba(0,0,0,1)',
-  //           shadowOpacity: 0.2,
-  //           shadowOffset: { width: 4, height: 4 },
-  //           shadowRadius: 5,
-  //           overflow: 'hidden',
-  //         }}>
-  //         <Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
-  //       </View>
-
-
-  //     </View>
-  //   );
-  // };
-
-  // _takePhoto = async () => {
-  //   let pickerResult = await ImagePicker.launchCameraAsync({
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //   });
-  //   this._handleImagePicked(pickerResult);
-  // };
-
-  // _pickImage = async () => {
-  //   let pickerResult = await ImagePicker.launchImageLibraryAsync({
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //   });
-  //   this._handleImagePicked(pickerResult);
-  // };
-
-  // _handleImagePicked = async pickerResult => {
-  //   try {
-
-  //     this.setState({ uploading: true });
-
-  //     if (!pickerResult.cancelled) {
-  //       let uploadUrl = await uploadImageAsync(pickerResult.uri);
-  //       this.setState({ image: uploadUrl });
-  //     }
-  //   }
-  //   catch (e) {
-  //     console.log(e);
-  //     alert('Upload failed, sorry :(');
-
-  //   }
-  //   finally {
-  //     this.setState({ uploading: false });
-  //   }
-  // };
 }
+
+//   _maybeRenderUploadingOverlay = () => {
+//     if (this.state.uploading) {
+//       return (
+//         <View
+//           style={[
+//             StyleSheet.absoluteFill,
+//             {
+//               backgroundColor: 'rgba(0,0,0,0.4)',
+//               alignItems: 'center',
+//               justifyContent: 'center',
+//             },
+//           ]}>
+//           <ActivityIndicator color="#fff" animating size="large" />
+//         </View>
+//       );
+//     }
+//   };
+
+//   _maybeRenderImage = () => {
+//     let { image } = this.state;
+//     if (!image) {
+//       return;
+//     }
+
+//     return (
+//       <View
+//         style={{
+//           marginTop: 30,
+//           width: 250,
+//           borderRadius: 3,
+//           elevation: 2,
+//         }}>
+//         <View
+//           style={{
+//             borderTopRightRadius: 3,
+//             borderTopLeftRadius: 3,
+//             shadowColor: 'rgba(0,0,0,1)',
+//             shadowOpacity: 0.2,
+//             shadowOffset: { width: 4, height: 4 },
+//             shadowRadius: 5,
+//             overflow: 'hidden',
+//           }}>
+//           <Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
+//         </View>
+
+
+//       </View>
+//     );
+//   };
+
+//   _takePhoto = async () => {
+//     let pickerResult = await ImagePicker.launchCameraAsync({
+//       allowsEditing: true,
+//       aspect: [4, 3],
+//     });
+//     this._handleImagePicked(pickerResult);
+//   };
+
+//   _pickImage = async () => {
+//     let pickerResult = await ImagePicker.launchImageLibraryAsync({
+//       allowsEditing: true,
+//       aspect: [4, 3],
+//     });
+//     this._handleImagePicked(pickerResult);
+//   };
+
+//   _handleImagePicked = async pickerResult => {
+//     try {
+
+//       this.setState({ uploading: true });
+
+//       if (!pickerResult.cancelled) {
+//         let uploadUrl = await uploadImageAsync(pickerResult.uri);
+//         this.setState({ image: uploadUrl });
+//       }
+//     }
+//     catch (e) {
+//       console.log(e);
+//       alert('Upload failed, sorry :(');
+
+//     }
+//     finally {
+//       this.setState({ uploading: false });
+//     }
+//   };
+// }
 // async function uploadImageAsync(uri) {
 
 //   const blob = await new Promise((resolve, reject) => {
