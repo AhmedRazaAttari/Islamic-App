@@ -36,6 +36,9 @@ export default class Signup extends Component {
               phoneNo: phoneNo,
               time: Date.now()
             })
+            res.user.updateProfile({
+              displayName : name,
+            })
             this.props.navigation.push("ForumHome")
           })
       }

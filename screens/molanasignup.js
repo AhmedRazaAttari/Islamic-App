@@ -15,14 +15,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Permissions from 'expo';
 import fire from '../config';
 
-// import uuid from 'uuid';
-// import * as firebase from 'firebase';
-// import { ScrollView } from 'react-native-gesture-handler';
-
-// const url =
-//   "https://firebasestorage.googleapis.com/v0/b/react-islah.appspot.com/o/Obsidian.jar?alt=media&token=2d0dd4fc-7bc6-450a-83a2-13accb08e828"
-
-
 export default class Molanasignup extends Component {
 
 
@@ -40,29 +32,64 @@ export default class Molanasignup extends Component {
       repass: "",
       image: "",
       uploading: false,
+      profilePic: ""
     }
   }
 
   async Registermolana() {
-    await this.uploadImage()
-    const { name, email, fiqah, city, phoneNo, pass, repass } = this.state;
-    if (fiqah !== "" && fiqah !== undefined && city !== "" && city !== undefined && email !== "" && email !== undefined && name !== "" && name !== undefined && phoneNo !== "" && phoneNo !== undefined && pass !== "" && pass !== undefined &&
+    const { name, profilePic, email, fiqah, city, phoneNo, pass, repass } = this.state;
+    if (profilePic !== "" && profilePic !== undefined && fiqah !== "" && fiqah !== undefined && city !== "" && city !== undefined && email !== "" && email !== undefined && name !== "" && name !== undefined && phoneNo !== "" && phoneNo !== undefined && pass !== "" && pass !== undefined &&
       repass !== "" && repass !== undefined) {
       if (pass === repass) {
-        fire.auth().createUserWithEmailAndPassword(email, pass)
-          .then(res => {
-            fire.database().ref("Molana").child(fiqah + "/" + res.user.uid).set({
-              id: res.user.uid,
-              name: name,
-              email: email,
-              fiqah: fiqah,
-              city: city,
-              phoneNo: phoneNo,
-              profilePic : this.state.UploadedImg,
-              time: Date.now()
-            })
-            this.props.navigation.push("MolanaHome")
+        const response = await fetch(this.state.profilePic);
+        const blob = await response.blob();
+        var ref = fire.storage().ref("images").child(new Date().toDateString());
+        ref.put(blob)
+          .then((result) => {
+            result.ref.getDownloadURL()
+              .then((url) => {
+                console.log(url);
+                // setUploadedUrl(url)
+                this.setState({
+                  UploadedImg: url
+                })
+
+                fire.auth().createUserWithEmailAndPassword(email, pass)
+                  .then(res => {
+                    fire.database().ref("Molana").child(fiqah + "/" + res.user.uid).set({
+                      id: res.user.uid,
+                      name: name,
+                      email: email,
+                      fiqah: fiqah,
+                      city: city,
+                      phoneNo: phoneNo,
+                      profilePic: url,
+                      time: Date.now()
+                    })
+                    this.props.navigation.push("MolanaHome", {
+                      fiqah: fiqah
+                    })
+                  })
+
+              })
           })
+
+        // fire.auth().createUserWithEmailAndPassword(email, pass)
+        //   .then(res => {
+        //     fire.database().ref("Molana").child(fiqah + "/" + res.user.uid).set({
+        //       id: res.user.uid,
+        //       name: name,
+        //       email: email,
+        //       fiqah: fiqah,
+        //       city: city,
+        //       phoneNo: phoneNo,
+        //       profilePic: this.state.profilePic,
+        //       time: Date.now()
+        //     })
+        //     this.props.navigation.push("MolanaHome", {
+        //       fiqah: fiqah
+        //     })
+        //   })
       }
       else {
         alert("Password and repassword should match")

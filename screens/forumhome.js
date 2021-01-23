@@ -22,12 +22,12 @@ export default function Forumhome({ navigation }) {
       snapshot.forEach(function (childSnapshot) {
         childSnapshot.forEach(function (anotherSnapshot) {
           // console.log("*****************&&", childSnapshot.val())
-          var data = `${anotherSnapshot.val().question}`
+          var data = `${childSnapshot.val().question}`
 
           SearchItem.toLowerCase()
           // var result = data.toLowerCase().indexOf(SearchItem) > -1
           if (data.toLowerCase().indexOf(SearchItem) > -1) {
-            UpdateMatchData(anotherSnapshot.val())
+            UpdateMatchData(childSnapshot.val())
             tempArr.push(MatchedData)
           }
         })
@@ -67,7 +67,7 @@ export default function Forumhome({ navigation }) {
         renderItem={({ item }) => {
           console.log("FLAAAAAAAAAATIST ==>", item)
           return (
-            <View style={{ padding: 10, width: Dimensions.get("window").width - 20, flexDirection: "column", backgroundColor: "lightgrey", marginTop: 20, justifyContent: "space-around" }}>
+            <View style={{ padding: 10, width: Dimensions.get("window").width - 50, padding : 10, flexDirection: "column", backgroundColor: "#f0f2f5", marginTop: 20, justifyContent: "space-around", elevation: 3, borderRadius: 10 }}>
 
               <View style={{ width: "100%", minHeight: 40 }}>
                 <Text>{item.question}</Text>
@@ -80,7 +80,7 @@ export default function Forumhome({ navigation }) {
               }}></View>
 
               <View style={{ width: "100%", minHeight: 40 }}>
-                <Text>afsfadasfahfkjashfkahfkashfkfkajfhkj</Text>
+                <Text>{item.answer}</Text>
               </View>
             </View>
 

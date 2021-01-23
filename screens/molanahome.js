@@ -1,37 +1,83 @@
 import * as React from "react";
-import { Text, View, FlatList, TouchableOpacity } from 'react-native';
+import {Image, Text, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import fire from "../config";
 
-
-
-export default function Molanahome() {
+export default function Molanahome({ route, navigation }) {
 
   const [Chatheads, setChatheads] = React.useState([]);
-
+  const [fiqah, setFiqah] = React.useState();
+  const [isLoading, setLoading] = React.useState(true)
+  // const { fiqah } = route.params;
   React.useEffect(() => {
-    var UserId = fire.auth().currentUser.uid;
-    var ChatHeadsArr = [];
-
-    fire.database().ref("Molana/" + UserId).child("ChatHeads").once("value").then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        for (var i = 0; i < childSnapshot.val.length; i++) {
-          ChatHeadsArr.push({
-            name: childSnapshot.val().name,
-            uid: childSnapshot.val().uid,
-          })
-        }
-
-        setChatheads(ChatHeadsArr)
-
-      })
-    })
+    // var fiqah;
+    isLoading && fetchedData()
   })
 
 
+  async function fetchedData() {
+    var UserId = fire.auth().currentUser.uid;
+    var ChatHeadsArr = [];
+
+    await fire.database().ref("Molana/").once("value").then(function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        childSnapshot.forEach(function (anotherSnapsot) {
+          if (anotherSnapsot.key === UserId) {
+            console.log(anotherSnapsot.val().fiqah)
+            // setFiqah(anotherSnapsot.val().fiqah) 
+            fire.database().ref("Molana/" + anotherSnapsot.val().fiqah + "/" + UserId).child("ChatHeads").once("value").then(function (snapshot2) {
+              snapshot2.forEach(function (childSnapshot2) {
+                // console.log(childSnapshot2.val())
+                var items = [];
+                items = [childSnapshot2.val()]
+                for (var i = 0; i < items.length; i++) {
+                  ChatHeadsArr.push({
+                    name: items[i].name,
+                    uid: items[i].uid,
+                    fiqah: items[i].fiqah,
+                  })
+                }
+                console.log(ChatHeadsArr)
+                setChatheads(ChatHeadsArr)
+                // ChatHeadsArr = items
+        
+              })
+            })
+            setLoading(false)
+            // fetchedChats(anotherSnapsot.val().fiqah)
+          }
+        })
+      })
+    })
+
+    // console.log(fiqah)
+  }
+
+
+
+  async function fetchedChats() {
+    console.log(ChatHeadsArr)
+    var UserId = fire.auth().currentUser.uid;
+    fire.database().ref("Molana/" + fiqah + "/" + UserId).child("ChatHeads").once("value").then(function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        console.log(childSnapshot.val().name)
+        var items = [];
+        for (var i = 0; i < childSnapshot.val.length; i++) {
+          items.push({
+            name: childSnapshot.val().name,
+            uid: childSnapshot.val().uid,
+          })
+          // setChatheads(ChatHeadsArr)
+        }
+        ChatHeadsArr = items
+        console.log(ChatHeadsArr)
+
+      })
+    })
+  }
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={{ flex: 1, width: '100%', padding: 18 }}>
-        
+      <View style={{ flex: 1, width: '100%', padding: 10 }}>
         <FlatList
           data={Chatheads}
           keyExtractor={(item, index) => "key" + index}
@@ -43,6 +89,7 @@ export default function Molanahome() {
                   navigation.navigate("Chat", {
                     name: item.name,
                     uid: item.uid,
+                    fiqah: item.fiqah,
                     title: item.name
                   })
                 }}

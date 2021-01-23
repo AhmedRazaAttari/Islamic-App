@@ -8,7 +8,7 @@ export default class Molanalogin extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      num: "",
+      email: "",
       pass: "",
       mylist: []
     }
@@ -25,6 +25,7 @@ export default class Molanalogin extends Component {
         .then(res => {
           console.log(res);
           alert("User logged-in successfully!");
+          console.log(res.user)
           this.props.navigation.navigate("MolanaHome");
         })
         .catch(error => Alert.alert(error.message));
@@ -47,7 +48,7 @@ export default class Molanalogin extends Component {
             placeholder='03XX-XXXXXXX'
             keyboardType="email-address"
             value={this.state.num}
-            onChangeText={(num) => this.setState({ num: num })}
+            onChangeText={(num) => this.setState({ email: num })}
           />
 
         </Item>

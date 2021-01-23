@@ -94,7 +94,7 @@ export default function ChatRoom({ route, navigation }) {
                 })
             }
             else {
-                alert("MOLANA HAI")
+                // alert("MOLANA HAI")
                 setIsMolana(true)
                 fire.database().ref("Molana" + "/" + fiqah + "/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs").once("value").then(function (snapshot) {
                     snapshot.forEach(function (childSnapshot) {
@@ -114,6 +114,34 @@ export default function ChatRoom({ route, navigation }) {
     function onSend(newMessage = []) {
 
         var UserId = fire.auth().currentUser.uid;
+        var displayName = fire.auth().currentUser.displayName;
+
+        if (!IsMolana) {
+            fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid).update({
+                name: name,
+                uid: uid,
+                fiqah: fiqah
+            })
+
+            fire.database().ref("Molana/" + fiqah + "/" + uid).child("ChatHeads" + "/" + UserId).update({
+                name: displayName,
+                uid: UserId,
+                fiqah: fiqah
+            })
+        }
+        else {
+            fire.database().ref("Molana/" + fiqah + "/" + UserId).child("ChatHeads" + "/" + uid).update({
+                name: displayName,
+                uid: uid,
+                fiqah: fiqah
+            })
+
+            fire.database().ref("users/" + uid).child("ChatHeads" + "/" + UserId).update({
+                name: name,
+                uid: UserId,
+                fiqah: fiqah
+            })
+        }
 
         var newPostKey = fire.database().ref().child('posts').push().key;
         for (var i = 0; i < newMessage.length; i++) {
@@ -137,6 +165,7 @@ export default function ChatRoom({ route, navigation }) {
                         avatar: fire.auth().currentUser.photoURL,
                     }
                 })
+                
                 fire.database().ref("questions").child(UserId).set({
                     question: newMessage[i].text,
                 })
@@ -162,7 +191,7 @@ export default function ChatRoom({ route, navigation }) {
                     }
                 })
 
-                fire.database().ref("questions").child(UserId + "/" + "answer").set({
+                fire.database().ref("questions").child(uid).set({
                     answer: newMessage[i].text,
                 })
                 // if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
