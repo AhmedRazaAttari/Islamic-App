@@ -12,8 +12,19 @@ import {
 import { Container, Header, Content, Form, Item, Input, Label, Button, Icon, Picker } from 'native-base';
 // import Constants from 'expo';
 import * as ImagePicker from 'expo-image-picker';
+// import Constants from 'expo-constants';
+// import Notifications from 'expo-notifications';
+
 import Permissions from 'expo';
 import fire from '../config';
+
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: false,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 export default class Molanasignup extends Component {
 
@@ -31,10 +42,37 @@ export default class Molanasignup extends Component {
       pass: "",
       repass: "",
       image: "",
+      token : "",
       uploading: false,
       profilePic: ""
     }
   }
+
+  // async componentDidMount() {
+
+  //   let token;
+  //   if (Constants.isDevice) {
+  //     const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //     let finalStatus = existingStatus;
+  //     if (existingStatus !== 'granted') {
+  //       const { status } = await Notifications.requestPermissionsAsync();
+  //       finalStatus = status;
+  //     }
+  //     if (finalStatus !== 'granted') {
+  //       alert('Failed to get push token for push notification!');
+  //       return;
+  //     }
+  //     token = (await Notifications.getExpoPushTokenAsync()).data;
+  //     console.log(token);
+  //   } else {
+  //     alert('Must use physical device for Push Notifications');
+  //   }
+
+  //   this.setState({
+  //     token: token
+  //   })
+  //   return token
+  // }
 
   async Registermolana() {
     const { name, profilePic, email, fiqah, city, phoneNo, pass, repass } = this.state;
@@ -62,9 +100,13 @@ export default class Molanasignup extends Component {
                       email: email,
                       fiqah: fiqah,
                       city: city,
+                      // token : this.state.token,
                       phoneNo: phoneNo,
                       profilePic: url,
                       time: Date.now()
+                    })
+                    res.user.updateProfile({
+                      displayName: name,
                     })
                     this.props.navigation.push("MolanaHome", {
                       fiqah: fiqah

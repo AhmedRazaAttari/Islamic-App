@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, TextInput, KeyboardAvoidingView, Keyboard, Button, ScrollView, Modal, TouchableHighlight, Alert } from 'react-native';
 import { Ionicons, Entypo, EvilIcons, FontAwesome, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+// import Constants from 'expo-constants';
+// import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
-// import { Camera } from 'expo-camera';
 import { GiftedChat } from 'react-native-gifted-chat';
-import { Audio } from 'expo-av';
 const screen = Dimensions.get('window');
 import fire from '../config';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 // import { Keyboard } from "react-native";
 import { TextInputComponent } from "react-native";
 var itm = [];
-// import SoundRecorder from 'react-native-sound-recorder';
+
 export default function ChatRoom({ route, navigation }) {
 
     const [messages, setMessages] = useState([])
@@ -20,8 +20,10 @@ export default function ChatRoom({ route, navigation }) {
     const [MessageId, setMessageID] = useState()
     const [IsMolana, setIsMolana] = useState()
     const { name, uid, fiqah } = route.params;
+    // const { name, uid, fiqah, token } = route.params;
+
     const inputRef = React.createRef();
-    const [isRecording, UpdateRecording] = useState(true)
+    // const [C_token, setToken] = useState("")
     const audioRecorderPlayer = new AudioRecorderPlayer();
 
 
@@ -83,6 +85,7 @@ export default function ChatRoom({ route, navigation }) {
         fire.database().ref("users/" + UserId).once("value").then(function (snapshot) {
             if (snapshot.exists()) {
                 setIsMolana(false)
+                // setToken(snapshot.val().token)
                 fire.database().ref("users/" + UserId).child("ChatHeads" + "/" + uid + "/" + "ChatMsgs").once("value").then(function (snapshot) {
                     snapshot.forEach(function (childSnapshot) {
                         tempArr.push(childSnapshot.val())
@@ -130,14 +133,15 @@ export default function ChatRoom({ route, navigation }) {
             })
         }
         else {
+
             fire.database().ref("Molana/" + fiqah + "/" + UserId).child("ChatHeads" + "/" + uid).update({
-                name: displayName,
+                name: name,
                 uid: uid,
                 fiqah: fiqah
             })
 
             fire.database().ref("users/" + uid).child("ChatHeads" + "/" + UserId).update({
-                name: name,
+                name: displayName,
                 uid: UserId,
                 fiqah: fiqah
             })
@@ -165,11 +169,24 @@ export default function ChatRoom({ route, navigation }) {
                         avatar: fire.auth().currentUser.photoURL,
                     }
                 })
-                
-                fire.database().ref("questions").child(UserId).set({
+
+
+                fire.database().ref("questions").child(UserId + "/" + newMessage[i]._id).set({
                     question: newMessage[i].text,
                 })
 
+                // fetch('https://exp.host/--/api/v2/push/send', {
+                //     body: JSON.stringify({
+                //         to: [token, C_token],
+                //         title: "Message Received",
+                //         body: "you Received Message from ",
+                //         data: { message: `${"title"} - ${"Hello"}` },
+                //     }),
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     method: 'POST',
+                // });
             }
             else {
                 fire.database().ref("Molana/" + fiqah).child(UserId + "/" + "ChatHeads" + "/" + uid + "/" + "ChatMsgs" + "/" + newPostKey).set({
@@ -191,38 +208,39 @@ export default function ChatRoom({ route, navigation }) {
                     }
                 })
 
-                fire.database().ref("questions").child(uid).set({
-                    answer: newMessage[i].text,
-                })
-                // if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
-                //     fire.database().ref("questions/" + uid).child(MessageId + "/" + "answer").set({
-                //         answer: newMessage[i].text,
-                //     })
-                // }
+                // fire.database().ref("questions").child(uid).set({
+                //     answer: newMessage[i].text,
+                // })
+                if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
+                    fire.database().ref("questions").child(uid + "/" + MessageId).update({
+                        answer: newMessage[i].text,
+                    })
+                }
 
             }
 
         }
         setMessages(GiftedChat.append(messages, newMessage))
-
+        setMessageID(undefined)
     }
 
     function onLongPress(context, message) {
-        console.log(context, message);
+        console.log(context, message.user._id);
         const options = ['Reply', 'Cancel'];
         const cancelButtonIndex = options.length - 1;
-        context.actionSheet().showActionSheetWithOptions({
-            options,
-            cancelButtonIndex
-        }, (buttonIndex) => {
-            switch (buttonIndex) {
-                case 0:
-                    Clipboard.setString(message._id);
-                    setMessageID(message._id)
-                    _keyboardDidShow()
-                    break;
-            }
-        });
+        if (message.user._id === 2) {
+            context.actionSheet().showActionSheetWithOptions({
+                options,
+                cancelButtonIndex
+            }, (buttonIndex) => {
+                switch (buttonIndex) {
+                    case 0:
+                        setMessageID(message._id)
+                        _keyboardDidShow()
+                        break;
+                }
+            });
+        }
     }
 
 
@@ -264,15 +282,16 @@ export default function ChatRoom({ route, navigation }) {
             <KeyboardAvoidingView style={styles.container} >
                 <GiftedChat
                     isAnimated={true}
-                    // renderAccessory={CustomView}
-                    // renderSend={this.SendBtn}
+                    renderInputToolbar={IsMolana === true && MessageId === undefined ? () => null : undefined}
                     messages={messages}
+                    textInputProps={{ autoFocus: IsMolana ? true : false }}
                     onSend={newMessages => onSend(newMessages)}
-                    // onLongPress={(context, msg) => IsMolana ? onLongPress(context, msg) : null}
+                    onLongPress={(context, msg) => IsMolana ? onLongPress(context, msg) : null}
                     user={{
                         _id: 1,
                     }}
                 />
+                {IsMolana && MessageId === undefined ? <View style={{ justifyContent: "center", alignItems: "center" }}><Text>Press and Hold on question to answer</Text></View> : null}
             </KeyboardAvoidingView>
         </View>
     )

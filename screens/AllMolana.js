@@ -45,6 +45,7 @@ export default function AllMolana({ navigation }) {
                         Name: anotherSnapshot.val().name,
                         email: anotherSnapshot.val().email,
                         fiqah: anotherSnapshot.val().fiqah,
+                        // token : anotherSnapshot.val().token,
                         phoneNo: anotherSnapshot.val().phoneNo,
                         city: anotherSnapshot.val().city,
                         profilePic: anotherSnapshot.val().profilePic
@@ -64,6 +65,7 @@ export default function AllMolana({ navigation }) {
                         Name: anotherSnapshot.val().name,
                         email: anotherSnapshot.val().email,
                         fiqah: anotherSnapshot.val().fiqah,
+                        // token : anotherSnapshot.val().token,
                         phoneNo: anotherSnapshot.val().phoneNo,
                         city: anotherSnapshot.val().city,
                         profilePic: anotherSnapshot.val().profilePic
@@ -85,6 +87,7 @@ export default function AllMolana({ navigation }) {
                         Name: anotherSnapshot.val().name,
                         email: anotherSnapshot.val().email,
                         fiqah: anotherSnapshot.val().fiqah,
+                        // token : anotherSnapshot.val().token,
                         phoneNo: anotherSnapshot.val().phoneNo,
                         city: anotherSnapshot.val().city,
                         profilePic: anotherSnapshot.val().profilePic
@@ -106,6 +109,7 @@ export default function AllMolana({ navigation }) {
                         Name: anotherSnapshot.val().name,
                         email: anotherSnapshot.val().email,
                         fiqah: anotherSnapshot.val().fiqah,
+                        // token : anotherSnapshot.val().token,
                         phoneNo: anotherSnapshot.val().phoneNo,
                         city: anotherSnapshot.val().city,
                         profilePic: anotherSnapshot.val().profilePic
@@ -126,6 +130,7 @@ export default function AllMolana({ navigation }) {
                         Name: anotherSnapshot.val().name,
                         email: anotherSnapshot.val().email,
                         fiqah: anotherSnapshot.val().fiqah,
+                        // token : anotherSnapshot.val().token,
                         phoneNo: anotherSnapshot.val().phoneNo,
                         city: anotherSnapshot.val().city,
                         profilePic: anotherSnapshot.val().profilePic
@@ -162,6 +167,7 @@ export default function AllMolana({ navigation }) {
                                                 name: item.Name,
                                                 uid: item.id,
                                                 fiqah: item.fiqah,
+                                                // token : item.token,
                                                 title: item.Name
                                             })
                                         }}
@@ -191,6 +197,7 @@ export default function AllMolana({ navigation }) {
                                                 name: item.Name,
                                                 uid: item.id,
                                                 fiqah: item.fiqah,
+                                                // token : item.token,
                                                 title: item.Name
                                             })
                                         }}
@@ -220,6 +227,7 @@ export default function AllMolana({ navigation }) {
                                                 name: item.Name,
                                                 uid: item.id,
                                                 fiqah: item.fiqah,
+                                                // token : item.token,
                                                 title: item.Name
                                             })
                                         }}
@@ -249,6 +257,7 @@ export default function AllMolana({ navigation }) {
                                                 name: item.Name,
                                                 uid: item.id,
                                                 fiqah: item.fiqah,
+                                                // token : item.token,
                                                 title: item.Name
                                             })
                                         }}
@@ -278,6 +287,7 @@ export default function AllMolana({ navigation }) {
                                                 name: item.Name,
                                                 uid: item.id,
                                                 fiqah: item.fiqah,
+                                                // token : item.token,
                                                 title: item.Name
                                             })
                                         }}

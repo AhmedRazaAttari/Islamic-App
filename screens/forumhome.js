@@ -22,12 +22,12 @@ export default function Forumhome({ navigation }) {
       snapshot.forEach(function (childSnapshot) {
         childSnapshot.forEach(function (anotherSnapshot) {
           // console.log("*****************&&", childSnapshot.val())
-          var data = `${childSnapshot.val().question}`
+          var data = `${anotherSnapshot.val().question}`
 
           SearchItem.toLowerCase()
           // var result = data.toLowerCase().indexOf(SearchItem) > -1
           if (data.toLowerCase().indexOf(SearchItem) > -1) {
-            UpdateMatchData(childSnapshot.val())
+            UpdateMatchData(anotherSnapshot.val())
             tempArr.push(MatchedData)
           }
         })
@@ -41,36 +41,24 @@ export default function Forumhome({ navigation }) {
   }
 
   return (
-    <View style={{ marginTop: 40, padding: 10 }}>
-      <Item rounded >
+    <View style={{ marginTop: 30, padding: 10 }}>
+
+      <Button rounded onPress={() => navigation.navigate("AllMolana")} style={{ padding: 10, backgroundColor: "green", marginTop: 40 }}>
+        <Text style={{ color: "white" }}>Search Molana & Ask question</Text>
+      </Button>
+      <Item rounded style={{ marginTop: 10 }}>
         <Input placeholder='Search question' style={{ paddingLeft: 20 }} onChangeText={val => GetMatchedData(val)} value={SearchItem} />
       </Item>
-      {/* {!isLoading && <View style={{ padding: 10, width: Dimensions.get("window").width - 20, flexDirection: "column", backgroundColor: "lightgrey", marginTop: 20, justifyContent: "space-around" }}>
-
-        <View style={{ width: "100%", minHeight: 40 }}>
-          <Text>afsfadasfahfkjashfkahfkashfkfkajfhkj</Text>
-        </View>
-
-        <View style={{
-          width: "100%",
-          borderBottomColor: 'grey',
-          borderBottomWidth: 1,
-        }}></View>
-
-        <View style={{ width: "100%", minHeight: 40 }}>
-          <Text>afsfadasfahfkjashfkahfkashfkfkajfhkj</Text>
-        </View>
-      </View>} */}
       <FlatList
         data={FinalMatchedArr}
         keyExtractor={(item, index) => "key" + index}
         renderItem={({ item }) => {
           console.log("FLAAAAAAAAAATIST ==>", item)
           return (
-            <View style={{ padding: 10, width: Dimensions.get("window").width - 50, padding : 10, flexDirection: "column", backgroundColor: "#f0f2f5", marginTop: 20, justifyContent: "space-around", elevation: 3, borderRadius: 10 }}>
+            <View style={{ padding: 10, width: Dimensions.get("window").width - 50, minHeight: 100, marginBottom: 20, padding: 10, flexDirection: "column", backgroundColor: "#f0f2f5", marginTop: 20, justifyContent: "space-around", elevation: 3, borderRadius: 10, alignSelf: "center" }}>
 
               <View style={{ width: "100%", minHeight: 40 }}>
-                <Text>{item.question}</Text>
+                <Text style={{fontSize : 15, fontWeight : "bold"}}> Question : {item.question}</Text>
               </View>
 
               <View style={{
@@ -79,8 +67,8 @@ export default function Forumhome({ navigation }) {
                 borderBottomWidth: 1,
               }}></View>
 
-              <View style={{ width: "100%", minHeight: 40 }}>
-                <Text>{item.answer}</Text>
+              <View style={{ width: "100%", minHeight: 35 }}>
+                <Text style={{fontSize : 15, fontWeight : "bold"}}>Answer :  {item.answer}</Text>
               </View>
             </View>
 
@@ -88,9 +76,6 @@ export default function Forumhome({ navigation }) {
         }}
       ></FlatList>
 
-      <Button rounded onPress={() => navigation.navigate("AllMolana")} style={{ padding: 10, backgroundColor: "green", marginTop: 40 }}>
-        <Text style={{ color: "white" }}>Search Molana & Ask question</Text>
-      </Button>
     </View>
   );
 }

@@ -7,6 +7,8 @@ export default function Molanahome({ route, navigation }) {
   const [Chatheads, setChatheads] = React.useState([]);
   const [fiqah, setFiqah] = React.useState();
   const [isLoading, setLoading] = React.useState(true)
+  const [token, setToken] = useState("")
+
   // const { fiqah } = route.params;
   React.useEffect(() => {
     // var fiqah;
@@ -23,6 +25,7 @@ export default function Molanahome({ route, navigation }) {
         childSnapshot.forEach(function (anotherSnapsot) {
           if (anotherSnapsot.key === UserId) {
             console.log(anotherSnapsot.val().fiqah)
+            // setToken(anotherSnapsot.val().token)
             // setFiqah(anotherSnapsot.val().fiqah) 
             fire.database().ref("Molana/" + anotherSnapsot.val().fiqah + "/" + UserId).child("ChatHeads").once("value").then(function (snapshot2) {
               snapshot2.forEach(function (childSnapshot2) {
@@ -90,7 +93,8 @@ export default function Molanahome({ route, navigation }) {
                     name: item.name,
                     uid: item.uid,
                     fiqah: item.fiqah,
-                    title: item.name
+                    title: item.name,
+                    // token : token
                   })
                 }}
               >
