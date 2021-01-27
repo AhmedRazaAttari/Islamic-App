@@ -121,11 +121,23 @@ export default function Forumhome({ navigation }) {
     SetSearchItem(val)
 
     // SearchItem.toLowerCase();
-    if (Sunni.indexOf(SearchItem) > -1) {
-      items.push(Sunni)
-      UpdateFilterResult_Sunni(items)
-      console.log(FilterResult_Sunni)
+    if (Sunni.length) {
+      for (var i = 0; i < Sunni.length; i++) {
+        if (Sunni[i].question.indexOf(val) > -1) {
+          items.push({
+            question: Sunni[i].question,
+            answer: Sunni[i].answer
+          })
+          UpdateFilterResult_Sunni(items)
+          console.log(FilterResult_Sunni)
+        }
+      }
     }
+    // if (Sunni.indexOf(SearchItem) > -1) {
+    //   items.push(Sunni)
+    //   UpdateFilterResult_Sunni(items)
+    //   console.log(FilterResult_Sunni)
+    // }
 
 
     // fire.database().ref("questions").once("value").then(function (snapshot) {
@@ -163,7 +175,7 @@ export default function Forumhome({ navigation }) {
       <Tabs style={{ backgroundColor: "white" }} renderTabBar={() => <ScrollableTab />}>
         <Tab heading="Sunni" activeTextStyle={{ color: '#fff', fontWeight: 'normal' }}>
           {/* <Text>Sunni Questions</Text> */}
-          {FilterResult_Sunni.length > 1 ? <FlatList
+          {FilterResult_Sunni.length > 0 ? <FlatList
             data={FilterResult_Sunni}
             keyExtractor={(item, index) => "key" + index}
             renderItem={({ item }) => {
