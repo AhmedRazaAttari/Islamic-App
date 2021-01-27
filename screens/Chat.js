@@ -171,7 +171,7 @@ export default function ChatRoom({ route, navigation }) {
                 })
 
 
-                fire.database().ref("questions").child(UserId + "/" + newMessage[i]._id).set({
+                fire.database().ref("questions").child(fiqah + "/" + newMessage[i]._id).set({
                     question: newMessage[i].text,
                 })
 
@@ -212,7 +212,7 @@ export default function ChatRoom({ route, navigation }) {
                 //     answer: newMessage[i].text,
                 // })
                 if (MessageId !== undefined && MessageId !== "" && MessageId !== null) {
-                    fire.database().ref("questions").child(uid + "/" + MessageId).update({
+                    fire.database().ref("questions").child(fiqah + "/" + MessageId).update({
                         answer: newMessage[i].text,
                     })
                 }

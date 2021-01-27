@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Image, Text, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { Image, Text, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import fire from "../config";
 
 export default function Molanahome({ route, navigation }) {
@@ -7,7 +7,7 @@ export default function Molanahome({ route, navigation }) {
   const [Chatheads, setChatheads] = React.useState([]);
   const [fiqah, setFiqah] = React.useState();
   const [isLoading, setLoading] = React.useState(true)
-  const [token, setToken] = useState("")
+  const [token, setToken] = React.useState("")
 
   // const { fiqah } = route.params;
   React.useEffect(() => {
@@ -42,7 +42,7 @@ export default function Molanahome({ route, navigation }) {
                 console.log(ChatHeadsArr)
                 setChatheads(ChatHeadsArr)
                 // ChatHeadsArr = items
-        
+
               })
             })
             setLoading(false)
@@ -55,28 +55,6 @@ export default function Molanahome({ route, navigation }) {
     // console.log(fiqah)
   }
 
-
-
-  async function fetchedChats() {
-    console.log(ChatHeadsArr)
-    var UserId = fire.auth().currentUser.uid;
-    fire.database().ref("Molana/" + fiqah + "/" + UserId).child("ChatHeads").once("value").then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        console.log(childSnapshot.val().name)
-        var items = [];
-        for (var i = 0; i < childSnapshot.val.length; i++) {
-          items.push({
-            name: childSnapshot.val().name,
-            uid: childSnapshot.val().uid,
-          })
-          // setChatheads(ChatHeadsArr)
-        }
-        ChatHeadsArr = items
-        console.log(ChatHeadsArr)
-
-      })
-    })
-  }
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
